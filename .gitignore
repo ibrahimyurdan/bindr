@@ -1,19 +1,4 @@
-# Node.js
-node_modules/
-npm-debug.log*
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-venv/
-
-# Firebase Keys
-firebase-key.json
-
-# Environment Variables
+# Ignore sensitive and unnecessary files
 .env
-
-# IDE Specific Files
-.vscode/
-.idea/
+firebase-key.json
+node_modules/
