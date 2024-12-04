@@ -1,4 +1,13 @@
 # Ignore sensitive and unnecessary files
 .env
 firebase-key.json
+
+# Node.js
 node_modules/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
