@@ -27,7 +27,7 @@ const App = () => {
     formData.append("file", file);
 
     try {
-      const res = await fetch('http://localhost:5000/upload', {
+      const res = await fetch('http://localhost:5001/upload', {
         method: 'POST',
         body: formData,
       });
@@ -61,7 +61,7 @@ const App = () => {
     ]);
 
     try {
-      const res = await fetch('http://localhost:5000/ask', {
+      const res = await fetch('http://localhost:5001/ask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

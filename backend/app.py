@@ -9,13 +9,16 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from datetime import datetime
 import re
+import json
 
 # Load environment variables
 load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend-backend communication
+
+# Apply CORS to specific routes
+CORS(app)
 
 # Load Firebase Admin SDK
 cred = credentials.Certificate("firebase-key.json")
@@ -31,8 +34,12 @@ storage_client = storage.Client.from_service_account_json("firebase-key.json")
 bucket = storage_client.bucket("bindrproject.firebasestorage.app")
 
 # Initialize OpenAI API
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = openai.OpenAI(api_key = os.getenv("OPENAI_API_KEY"))
 
+
+@app.before_request
+def log_request():
+    print(f"Incoming {request.method} request to {request.path}")
 
 # Route: Ask GPT-4 a question
 @app.route('/ask', methods=['POST'])
@@ -59,17 +66,17 @@ def ask_gpt():
         prompt = f"Here is the content of the uploaded file:\n{file_content}\n\nQuestion: {question}"
 
         # Call GPT-4 API
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
+        response = client.chat.completions.create(
+            model="gpt-4o",
             messages=[
                 {"role": "user", "content": prompt}
             ]
         )
-        answer = response.choices[0].message["content"]
+        answer = response.choices[0].message.content
         return jsonify({"response": answer}), 200
 
     except Exception as e:
-        print(f"Error while calling GPT-4: {e}")
+        print(f"Error while calling GPT-4o: {e}")
         return jsonify({"error": f"An error occurred while contacting GPT-4: {str(e)}"}), 500
 
 
@@ -176,7 +183,75 @@ def extract_dates():
         print(f"Error extracting dates: {e}")
         return jsonify({"error": f"Failed to extract dates: {str(e)}"}), 500
 
+
+@app.route("/list-files", methods=["GET"])
+def list_files():
+    try:
+        # Get all blobs (files) in the bucket
+        blobs = bucket.list_blobs()
+
+        # Prepare a list of file details
+        files = [{"name": blob.name, "url": blob.public_url} for blob in blobs]
+
+        return jsonify({"files": files}), 200
+    except Exception as e:
+        print(f"Error occurred while listing files: {e}")
+        return jsonify({"error": f"Failed to list files: {str(e)}"}), 500
+
+
+@app.route("/extract-calendar", methods=["POST"])
+def extract_calendar():
+    if "file" not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files["file"]
+    if not file.filename:
+        return jsonify({"error": "No selected file"}), 400
+
+    # Validate file type (PDF only)
+    if not file.filename.lower().endswith('.pdf'):
+        return jsonify({"error": "Only PDF files are allowed."}), 400
+
+    try:
+        # Extract text from PDF
+        file.seek(0)  # Reset file pointer
+        reader = PdfReader(file)
+        extracted_text = " ".join([page.extract_text() or "" for page in reader.pages])
+
+        # Combine extracted text with the prompt
+        prompt = (
+            "Extract all dates and events from the given text. "
+            "Output only a JSON array with each entry in the format: "
+            '{"date": "mm-dd", "title": "...", "task": "..."} and ensure all dates are in the "mm-dd" format. '
+            "Do not include any text outside the JSON array.\n\n"
+            f"{extracted_text}"
+        )
+
+        # Call GPT API with the prompt
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        # Extract JSON from the response
+        json_output = response.choices[0].message.content.strip()
+
+        # Validate JSON output
+        try:
+            parsed_output = json.loads(json_output)
+            if not isinstance(parsed_output, list):
+                raise ValueError("Output is not a JSON array")
+        except Exception as e:
+            return jsonify({"error": "Failed to parse GPT output", "details": str(e)}), 500
+
+        return jsonify(parsed_output), 200
+
+    except Exception as e:
+        print(f"Error extracting calendar events: {e}")
+        return jsonify({"error": f"Failed to extract calendar events: {str(e)}"}), 500
+
+
 if __name__ == "__main__":
     # Ensure Google Application Credentials are set
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "firebase-key.json"
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
