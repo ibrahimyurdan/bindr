@@ -1,42 +1,166 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-.App {
-  text-align: center;
+/* Modern, clean color palette */
+:root {
+  --bg-primary: #f4f6f9;
+  --bg-secondary: #ffffff;
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --accent-color: #3498db;
+  --hover-color: #2980b9;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+body {
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* App Container Layout */
+.app-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: 250px;
+  background-color: var(--bg-secondary);
+  border-right: 1px solid #e0e4e8;
+  padding: 20px 0;
   display: flex;
   flex-direction: column;
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 0 20px;
+}
+
+.logo-container h1 {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 15px;
+}
+
+.sidebar-nav-link {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  gap: 15px;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.sidebar-nav-link .nav-icon {
+  stroke: var(--text-secondary);
+}
+
+.sidebar-nav-link:hover {
+  background-color: #e9ecef;
+  color: var(--accent-color);
+}
+
+.sidebar-nav-link.active {
+  background-color: #e6f2ff;
+  color: var(--accent-color);
+}
+
+.sidebar-nav-link.active .nav-icon {
+  stroke: var(--accent-color);
+}
+
+/* Main Content Area */
+.main-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid #e0e4e8;
+}
+
+.header-title h1 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.content-wrapper {
+  flex-grow: 1;
+  padding: 30px;
+  overflow-y: auto;
+  background-color: var(--bg-primary);
+}
+
+.welcome-page {
+  text-align: center;
+  padding: 50px;
+  background-color: var(--bg-secondary);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.btn-profile {
+  background-color: var(--accent-color);
   color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.App-link {
-  color: #61dafb;
+.btn-profile:hover {
+  background-color: var(--hover-color);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* File Upload and Chat Styles */
+.file-upload-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.upload-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.upload-button:hover {
+  background-color: var(--hover-color);
+}
+
+.upload-button .nav-icon {
+  stroke: white;
 }
