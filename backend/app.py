@@ -62,13 +62,20 @@ def ask_gpt():
             else:
                 return jsonify({"error": f"No document found for filename: {filename}"}), 404
 
-        # Combine file content with user question
-        prompt = f"Here is the content of the uploaded file:\n{file_content}\n\nQuestion: {question}"
+        
+        prompt = (
+            "When user greets you, respond with a greeting and explain your role. ' "
+            "Answer the question based on the provided document content. "
+            "If the answer cannot be determined from the document, respond with 'Hm...I can't seem to find the answer to that in your document. '\n\n"
+            f"Document Content:\n{file_content}\n\n"
+            f"Question: {question}"
+        )
 
         # Call GPT-4 API
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
+                {"role": "system", "content": "You are an assistant that helps the user search a selected document for answers to questions."},
                 {"role": "user", "content": prompt}
             ]
         )

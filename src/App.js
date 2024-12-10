@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { Routes, Route, NavLink } from 'react-router-dom';
 import { 
   FileText, 
@@ -17,40 +17,73 @@ const App = () => {
   const [uploadedFileName, setUploadedFileName] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
+  const [existingFiles, setExistingFiles] = useState([]); // List of existing files
+  const [selectedFile, setSelectedFile] = useState(""); // Selected file from dropdown
+
+  // Fetch existing files from the backend
+  useEffect(() => {
+    const fetchFiles = async () => {
+      try {
+        const res = await fetch('http://localhost:5001/list-files');
+        const data = await res.json();
+        setExistingFiles(data.files || []);
+      } catch (error) {
+        console.error("Error fetching files:", error);
+      }
+    };
+
+    fetchFiles();
+  }, []);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
+    setSelectedFile(""); // Clear selected dropdown value when a new file is chosen
   };
 
   const handleUpload = async () => {
-    const formData = new FormData();
-    formData.append("file", file);
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    try {
-      const res = await fetch('http://localhost:5001/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      try {
+        const res = await fetch('http://localhost:5001/upload', {
+          method: 'POST',
+          body: formData,
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (data.filename) {
-        setUploadedFileName(data.filename);
+        if (data.filename) {
+          setUploadedFileName(data.filename);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { role: "system", content: `File uploaded: ${data.message}` },
+          ]);
+        } else {
+          throw new Error("Filename not returned from backend");
+        }
+      } catch (error) {
         setMessages((prevMessages) => [
           ...prevMessages,
-          { role: "system", content: `File uploaded: ${data.message}` },
+          { role: "system", content: "An error occurred while uploading the file." },
         ]);
-      } else {
-        throw new Error("Filename not returned from backend");
+        console.error("Upload error:", error);
       }
-    } catch (error) {
+    } else {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { role: "system", content: "An error occurred while uploading the file." },
+        { role: "system", content: "Please select a file or upload a new one." },
       ]);
-      console.error("Upload error:", error);
     }
   };
+
+  const handleSelectExistingFile =  async() => {
+    setUploadedFileName(selectedFile);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { role: "system", content: `Using existing file: ${selectedFile}` },
+      ]);
+  }
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -153,33 +186,79 @@ const App = () => {
               path="/" 
               element={
                 <div className="document-upload-section">
-                  <div className="file-upload-container">
+                  {/* Select an Existing File Section */}
+                  <div className="file-select-container" style={{ marginBottom: '20px' }}>
+                    <h3 style={{ marginBottom: '10px' }}>Select an Existing File</h3>
+                    <select 
+                      value={selectedFile} 
+                      onChange={(e) => setSelectedFile(e.target.value)} 
+                      style={{
+                        marginRight: '10px',
+                        padding: '5px',
+                        minWidth: '200px',
+                        border: '1px solid #e0e4e8',
+                        borderRadius: '5px',
+                      }}
+                    >
+                      <option value="">Select an existing file</option>
+                      {existingFiles.map((file) => (
+                        <option key={file.name} value={file.name}>
+                          {file.name}
+                        </option>
+                      ))}
+                    </select>
+                    <button 
+                      onClick={() => {
+                        if (selectedFile) {
+                          handleSelectExistingFile();
+                        } else {
+                          alert("Please select a file from the dropdown.");
+                        }
+                      }}
+                      className="select-button"
+                      style={{
+                        padding: "5px 10px",
+                        backgroundColor: "var(--accent-color)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Use Selected File
+                    </button>
+                  </div>
+        
+                  {/* Upload a New File Section */}
+                  <div className="file-upload-container" style={{ marginBottom: '20px' }}>
+                    <h3 style={{ marginBottom: '10px' }}>Or Upload a New File</h3>
                     <input 
                       type="file" 
                       onChange={handleFileChange} 
-                      style={{ marginBottom: '10px' }}
+                      style={{
+                        marginRight: '10px',
+                        padding: '5px',
+                        border: '1px solid #e0e4e8',
+                        borderRadius: '5px',
+                      }}
                     />
                     <button 
                       onClick={handleUpload}
                       className="upload-button"
+                      style={{
+                        padding: "5px 10px",
+                        backgroundColor: "var(--accent-color)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                      }}
                     >
-                      <Upload className="nav-icon" /> Upload
+                      <Upload className="nav-icon" style={{ marginRight: '5px' }} /> Upload
                     </button>
                   </div>
 
-                  <div 
-                    className="chat-messages"
-                    style={{
-                      border: "1px solid #e0e4e8",
-                      padding: "10px",
-                      maxHeight: "400px",
-                      overflowY: "auto",
-                      backgroundColor: "var(--bg-secondary)",
-                      borderRadius: "10px",
-                      marginTop: "20px",
-                      boxShadow: "0 4px 6px rgba(0,0,0,0.05)"
-                    }}
-                  >
+                  <div className="chat-messages">
                     {messages.map((message, index) => (
                       <div
                         key={index}
