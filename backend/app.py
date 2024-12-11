@@ -64,7 +64,7 @@ def ask_gpt():
 
         
         prompt = (
-            "When user greets you, respond with a greeting and explain your role. ' "
+            "When user greets you, respond with a greeting and explain your role. "
             "Answer the question based on the provided document content. "
             "If the answer cannot be determined from the document, respond with 'Hm...I can't seem to find the answer to that in your document. '\n\n"
             f"Document Content:\n{file_content}\n\n"
