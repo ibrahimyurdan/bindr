@@ -36,6 +36,8 @@ const StudyPlan = () => {
     console.log('Uploaded File:', uploadedFile);
   };
 
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -46,17 +48,12 @@ const StudyPlan = () => {
     formData.append('overallEnd', overallEnd);
     formData.append('topics', topics);
     formData.append('studyPreference', studyPreference);
-    console.log(formData.get('file'));
-    console.log(formData.get('availability'));
-    console.log(formData.get('topics'));
+    
   
     try {
       const response = await fetch('http://localhost:5001/createstudyplan', {
         method: 'POST',
         body: formData,
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
       });
   
       if (!response.ok) {

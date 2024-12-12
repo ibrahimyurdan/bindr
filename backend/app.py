@@ -89,26 +89,17 @@ def ask_gpt():
 
 @app.route('/createstudyplan', methods=['POST'])
 def create_study_plan():
-    if request.method == 'POST':
-        # Get the multipart form data
-        form_data = request.form.to_dict()
-        files = request.files
-
-        # Print the form data in a readable format
-        print("Form Data:")
-        for key, value in form_data.items():
-            print(f"{key}: {value}")
-
-        # Print the files
-        print("Files:")
-        for filename, file in files.items():
-            print(f"Filename: {filename}")
-            # You can process the file data here, e.g., save it to disk
-            file.save(f"uploads/{filename}")
-
+    try :
+        print(request.form.get('availability'))
         return jsonify({'message': 'Study plan data received successfully!'})
-
-
+    
+    except Exception as e:
+        print(f"Error")
+        return jsonify({"error": f"An error occurred"}), 500
+    
+    #send form fields to chatgpt and ask it to generate a study plan
+    #return study plan text + ics file
+    
 
 # Route: Upload a file and extract its text
 @app.route("/upload", methods=["POST"])
