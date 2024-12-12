@@ -6,6 +6,10 @@ import './StudyPlanStyle.css';
 const StudyPlan = () => {
   
   const [file, setFile] = useState(null);
+  const [overallEnd, setOverallEnd] =  useState(null);
+  const [overallStart, setOverallStart] =  useState(null);
+  const [topics, setTopics] = useState(null);
+  const [studyPreference, setStudyPreference] = useState(null);
   const [availability, setAvailability] = useState({
     Monday: { start: '', end: '' },
     Tuesday: { start: '', end: '' },
@@ -32,20 +36,39 @@ const StudyPlan = () => {
     console.log('Uploaded File:', uploadedFile);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+  
     const formData = new FormData();
     formData.append('file', file);
     formData.append('availability', JSON.stringify(availability));
-    // Append other fields as necessary
-
-    fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => console.log('Server Response:', data))
-      .catch((error) => console.error('Error:', error));
+    formData.append('overallStart', overallStart);
+    formData.append('overallEnd', overallEnd);
+    formData.append('topics', topics);
+    formData.append('studyPreference', studyPreference);
+  
+    try {
+      const response = await fetch('/createStudyPlan', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      const data = await response.json();
+      console.log('Response:', data);
+  
+      // print new study plan
+    } catch (error) {
+      console.error('Error:', error);
+  
+      // Handle error, e.g., show an error message to the user
+    }
   };
 
   return (
@@ -58,10 +81,20 @@ const StudyPlan = () => {
         {/*Overall plan timeline*/}
         <div>
           <h3>Enter the start and end date of your study plan</h3>
-          <label for="overall_start">Start date:</label>
-          <input type="date" id="overall_start" name="overall_start" />
-          <label for="overall_end">End date:</label>
-          <input type="date" id="overall_end" name="overall_end" />
+          <label htmlFor="overall_start">Start date:</label>
+          <input
+            type="date"
+            id="overall_start"
+            name="overall_start"
+            onChange={(e) => setOverallStart(e.target.value)}
+          />
+          <label htmlFor="overall_end">End date:</label>
+          <input
+            type="date"
+            id="overall_end"
+            name="overall_end"
+            onChange={(e) => setOverallEnd(e.target.value)}
+          />
         </div>
         
 
@@ -86,11 +119,53 @@ const StudyPlan = () => {
         </div>
         
         <div>
-          {/*Specific Topics*/}
+          {/*Specific Topics */}
           <h3>Are there any topics you would like to cover specifically?</h3>
-          <label for="topics">Topics: </label>
-          <input type="text" id="topics" name="topics"></input>
+          <label htmlFor="topics">Topics:</label>
+          <input
+            type="text"
+            id="topics"
+            name="topics"
+            onChange={(e) => setTopics(e.target.value)}
+          />
         </div>
+
+        <div>
+          <h3>Optional: Select study preferences</h3>
+          
+          <input
+            type="radio"
+            id="deep_focus"
+            name="studyPreference" 
+            value="deep_focus" 
+            checked={studyPreference === 'deep_focus'} 
+            onChange={(e) => setStudyPreference(e.target.value)}
+          />
+          <label for="deep_focus">Deep Focus Sessions</label><br></br>
+          
+         
+          <input
+            type="radio"
+            id="pomodoro"
+            name="studyPreference" 
+            value="pomodoro" 
+            checked={studyPreference === 'pomodoro'} 
+            onChange={(e) => setStudyPreference(e.target.value)} 
+          />
+          <label for="pomodoro">Pomodoro Technique</label> <br></br>
+
+          
+          <input
+            type="radio"
+            id="spaced"
+            name="studyPreference" 
+            value="spaced" 
+            checked={studyPreference === 'spaced'} 
+            onChange={(e) => setStudyPreference(e.target.value)} 
+          />
+          <label for="spaced">Spaced Repetition</label><br></br>
+        </div>
+        
 
         <button type="submit">Submit</button>
 

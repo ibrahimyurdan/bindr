@@ -87,6 +87,12 @@ def ask_gpt():
         return jsonify({"error": f"An error occurred while contacting GPT-4: {str(e)}"}), 500
 
 
+# Route: Ask GPT-4 a question
+@app.route('/createStudyPlan', methods=['POST'])
+def ask_gpt():
+    return 0;
+
+
 # Route: Upload a file and extract its text
 @app.route("/upload", methods=["POST"])
 def upload_file():
