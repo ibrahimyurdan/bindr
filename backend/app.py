@@ -87,10 +87,27 @@ def ask_gpt():
         return jsonify({"error": f"An error occurred while contacting GPT-4: {str(e)}"}), 500
 
 
-# Route: Ask GPT-4 a question
-@app.route('/createStudyPlan', methods=['POST'])
-def ask_gpt():
-    return 0;
+@app.route('/createstudyplan', methods=['POST'])
+def create_study_plan():
+    if request.method == 'POST':
+        # Get the multipart form data
+        form_data = request.form.to_dict()
+        files = request.files
+
+        # Print the form data in a readable format
+        print("Form Data:")
+        for key, value in form_data.items():
+            print(f"{key}: {value}")
+
+        # Print the files
+        print("Files:")
+        for filename, file in files.items():
+            print(f"Filename: {filename}")
+            # You can process the file data here, e.g., save it to disk
+            file.save(f"uploads/{filename}")
+
+        return jsonify({'message': 'Study plan data received successfully!'})
+
 
 
 # Route: Upload a file and extract its text
