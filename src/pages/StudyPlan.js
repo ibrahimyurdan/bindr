@@ -67,6 +67,8 @@ const StudyPlan = () => {
   const [uploadedFileName, setUploadedFileName] = useState(null);
   const [showResponse, setShowResponse] = useState(false);  // To control response visibility
   const [backendResponse, setBackendResponse] = useState('');  // Store backend response
+  const [uploadStatus, setUploadStatus] = useState("");
+  const [loading, setLoading] = useState(false);
 
   
 
@@ -110,7 +112,8 @@ const handleFileChange = (e) => {
 };
 
 
-  const handleUpload = async () => {
+  const handleUpload = async (e) => {
+    e.preventDefault(); 
     if (file) {
       const formData = new FormData();
       formData.append("file", file);
@@ -122,15 +125,18 @@ const handleFileChange = (e) => {
         });
 
       const data = await res.json();
+      setUploadStatus("File uploaded successfully!");
 
       } catch (error) {
         console.error("Upload error:", error);
+        setUploadStatus("File upload failed. Please try again.");
       }
     } 
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
   
     const formData = new FormData();
   
@@ -292,6 +298,7 @@ const handleFileChange = (e) => {
               >
                 <Upload className="nav-icon" /> Upload
               </button>
+              {uploadStatus && <p>{uploadStatus}</p>}
             </div>
           </div>
         </AccordionSection>
@@ -363,8 +370,9 @@ const handleFileChange = (e) => {
         <button 
           type="submit" 
           className="submit-button"
+          disabled={loading}  // Disable the button while loading
         >
-          Generate Study Plan
+          {loading ? 'Loading...' : 'Generate Study Plan'}
         </button>
         </form>
     ) : (

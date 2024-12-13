@@ -162,3 +162,33 @@
     flex-direction: column;
     align-items: center;
   }
+
+  .document-upload-section {
+    
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+  
+  .file-select-container,
+  .file-upload-container {
+    
+    margin-bottom: 15px;
+  }
+  
+  .file-select-container h3,
+  .file-upload-container h3 {
+    
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+  
+  .file-select-container select,
+  .file-upload-container input[type="file"] {
+    
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+  }
+  
