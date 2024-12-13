@@ -308,6 +308,7 @@ const handleFileChange = (e) => {
             <input
               type="text"
               id="topics"
+              autoFocus="autoFocus"
               name="topics"
               value={topics}
               onChange={(e) => setTopics(e.target.value)}
