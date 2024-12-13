@@ -94,6 +94,7 @@ def create_study_plan():
         # Extract form data (defaults to None or empty string if not provided)
         file_name = request.form.get('fileName', None)
         availability = request.form.get('availability', None)
+        print(availability)
         overall_start = request.form.get('overallStart', None)
         overall_end = request.form.get('overallEnd', None)
         topics = request.form.get('topics', None)
@@ -113,7 +114,8 @@ def create_study_plan():
         prompt = "Based on the following user preferences, generate a detailed and personalized study plan:"
 
         if availability:
-            prompt += f"\n1. Weekly availability: {availability}"
+            prompt += f"\n1. Weekly availability: {availability}. If there is no availability at all, assume that the user
+                                                                    is available the whole day, every day of the week."
         if overall_start and overall_end:
             prompt += f"\n2. Study timeline: Start - {overall_start}, End - {overall_end}"
         if topics:
@@ -122,11 +124,10 @@ def create_study_plan():
             prompt += f"\n4. Preferred study method: {study_preference}"
         
         if file_content:
-            file_content = file_content  # Truncate to prevent token overflow
-            prompt += f"\n\nAdditionally, consider the following syllabus:\n{file_content}"
+            file_content = file_content
+            prompt += f"\n\nUse the following file to extract due dates, topics to cover and resources need:\n{file_content}"
 
-        print(prompt);
-        # Call OpenAI API
+        # Call OpenAI API (using client for consistency)
         
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -138,7 +139,7 @@ def create_study_plan():
 
         # Extract response
         study_plan = response.choices[0].message.content
-
+       
         return jsonify({"study_plan": study_plan}), 200
 
     except Exception as e:
