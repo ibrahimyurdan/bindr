@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ChevronDown, 
   ChevronUp, 
@@ -60,6 +60,28 @@ const StudyPlan = () => {
     Saturday: { start: '', end: '' },
     Sunday: { start: '', end: '' },
   });
+  const [existingFiles, setExistingFiles] = useState([]); // List of existing files
+  const [selectedFile, setSelectedFile] = useState(""); // Selected file from dropdown
+  const [uploadedFileName, setUploadedFileName] = useState(null);
+  const [showResponse, setShowResponse] = useState(false);  // To control response visibility
+  const [backendResponse, setBackendResponse] = useState('');  // Store backend response
+
+  
+
+  // Fetch existing files from the backend
+    useEffect(() => {
+      const fetchFiles = async () => {
+        try {
+          const res = await fetch('http://localhost:5001/list-files');
+          const data = await res.json();
+          setExistingFiles(data.files || []);
+        } catch (error) {
+          console.error("Error fetching files:", error);
+        }
+      };
+  
+      fetchFiles();
+    }, []);
 
   const handleChange = (day, timeType, timeValue) => {
     setAvailability((prev) => ({
@@ -71,16 +93,45 @@ const StudyPlan = () => {
     }));
   };
 
-  const handleFileChange = (e) => {
-    const uploadedFile = e.target.files[0];
-    setFile(uploadedFile);
+  // Update the dropdown handler
+const handleDropdownChange = (e) => {
+  const selected = e.target.value;
+  setSelectedFile(selected); // Update the selected file
+  setUploadedFileName(selected); // Update the uploadedFileName to match the selection
+};
+
+// Update the file upload handler
+const handleFileChange = (e) => {
+  const newFile = e.target.files[0];
+  setFile(newFile); // Update the file to upload
+  setSelectedFile(""); // Clear dropdown selection since a new file is chosen
+};
+
+
+  const handleUpload = async () => {
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch('http://localhost:5001/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+      const data = await res.json();
+
+      } catch (error) {
+        console.error("Upload error:", error);
+      }
+    } 
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
   
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('fileName', uploadedFileName);
     formData.append('availability', JSON.stringify(availability));
     formData.append('overallStart', overallStart);
     formData.append('overallEnd', overallEnd);
@@ -99,6 +150,12 @@ const StudyPlan = () => {
   
       const data = await response.json();
       console.log('Response:', data);
+      
+      if (data.study_plan) {
+        setBackendResponse(data.study_plan);
+        setShowResponse(true);
+      }
+
     } catch (error) {
       console.error('Error:', error);
     }
@@ -144,6 +201,7 @@ const StudyPlan = () => {
         </p>
       </div>
 
+      {!showResponse ? (
       <form onSubmit={handleSubmit} className="study-plan-form">
         {/* Overall Plan Timeline */}
         <AccordionSection 
@@ -188,26 +246,44 @@ const StudyPlan = () => {
 
         {/* Syllabus Upload */}
         <AccordionSection 
-          title="Upload Syllabus" 
+          title="Choose Syllabus" 
           description="Upload your course syllabus to help extract key dates and topics."
           sectionKey="syllabus"
         >
-          <div className="file-upload-container">
-            <input
-              type="file"
-              id="syllabus"
-              name="syllabus"
-              accept=".pdf,.doc,.docx,.txt"
-              onChange={handleFileChange}
-              style={{ display: 'none' }}
-              className="file-input"
-            />
-            <label htmlFor="syllabus" className="upload-button">
-              <Upload className="nav-icon" />
-              {file ? file.name : 'Choose File'}
-            </label>
+          <div className="document-upload-section">
+            {/* Select an Existing File Section */}
+            <div className="file-select-container">
+              <h3>Select an Existing File</h3>
+              <select 
+                value={selectedFile} 
+                onChange={handleDropdownChange} // Use the updated handler
+              >
+                <option value="">Select an existing file</option>
+                {existingFiles.map((file) => (
+                  <option key={file.name} value={file.name}>
+                    {file.name}
+                  </option>
+                ))}
+              </select> 
+            </div>
+
+            {/* Upload a New File Section */}
+            <div className="file-upload-container">
+              <h3>Or Upload a New File</h3>
+              <input 
+                type="file" 
+                onChange={handleFileChange} 
+              />
+              <button 
+                onClick={handleUpload}
+                className="upload-button"
+              >
+                <Upload className="nav-icon" /> Upload
+              </button>
+            </div>
           </div>
         </AccordionSection>
+
 
         {/* Specific Topics */}
         <AccordionSection 
@@ -221,6 +297,7 @@ const StudyPlan = () => {
               type="text"
               id="topics"
               name="topics"
+              value={topics}
               onChange={(e) => setTopics(e.target.value)}
               className="form-input"
               placeholder="Enter topics you want to cover"
@@ -276,7 +353,13 @@ const StudyPlan = () => {
         >
           Generate Study Plan
         </button>
-      </form>
+        </form>
+    ) : (
+      <div className="response-container">
+        <h2>Your Generated Study Plan</h2>
+        <p>{backendResponse}</p> {/* Display the backend response */}
+      </div>
+    )}
     </div>
   );
 };

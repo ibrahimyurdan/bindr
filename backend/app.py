@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 import re
 import json
+from werkzeug.datastructures import FileStorage
 
 # Load environment variables
 load_dotenv()
@@ -35,7 +36,7 @@ bucket = storage_client.bucket("bindrproject.firebasestorage.app")
 
 # Initialize OpenAI API
 client = openai.OpenAI(api_key = os.getenv("OPENAI_API_KEY"))
-
+print(os.getenv("OPENAI_API_KEY"));
 
 @app.before_request
 def log_request():
@@ -89,16 +90,59 @@ def ask_gpt():
 
 @app.route('/createstudyplan', methods=['POST'])
 def create_study_plan():
-    try :
-        print(request.form.get('availability'))
-        return jsonify({'message': 'Study plan data received successfully!'})
-    
+    try:
+        # Extract form data (defaults to None or empty string if not provided)
+        file_name = request.form.get('fileName', None)
+        availability = request.form.get('availability', None)
+        overall_start = request.form.get('overallStart', None)
+        overall_end = request.form.get('overallEnd', None)
+        topics = request.form.get('topics', None)
+        study_preference = request.form.get('studyPreference', None)
+
+        # Retrieve file content from Firestore if filename is provided
+        file_content = ""
+        if file_name:
+            doc_ref = db.collection("documents").document(file_name)
+            doc = doc_ref.get()
+            if doc.exists:
+                file_content = doc.to_dict().get("content", "")
+            else:
+                return jsonify({"error": f"No document found for filename: {file_name}"}), 404
+
+        # Construct the prompt, including only the provided fields
+        prompt = "Based on the following user preferences, generate a detailed and personalized study plan:"
+
+        if availability:
+            prompt += f"\n1. Weekly availability: {availability}"
+        if overall_start and overall_end:
+            prompt += f"\n2. Study timeline: Start - {overall_start}, End - {overall_end}"
+        if topics:
+            prompt += f"\n3. Specific topics to cover: {topics}"
+        if study_preference:
+            prompt += f"\n4. Preferred study method: {study_preference}"
+        
+        if file_content:
+            file_content = file_content  # Truncate to prevent token overflow
+            prompt += f"\n\nAdditionally, consider the following syllabus:\n{file_content}"
+
+        print(prompt);
+        # Call OpenAI API
+        
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant specializing in study plans."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+        # Extract response
+        study_plan = response.choices[0].message.content
+
+        return jsonify({"study_plan": study_plan}), 200
+
     except Exception as e:
-        print(f"Error")
-        return jsonify({"error": f"An error occurred"}), 500
-    
-    #send form fields to chatgpt and ask it to generate a study plan
-    #return study plan text + ics file
+        return jsonify({"error": str(e)}), 500
     
 
 # Route: Upload a file and extract its text
