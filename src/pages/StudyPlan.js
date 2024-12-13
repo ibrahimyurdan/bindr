@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { 
   ChevronDown, 
   ChevronUp, 
   Upload 
 } from 'lucide-react';
 import './StudyPlanStyle.css';
+import ReactMarkdown from 'react-markdown';
 
-const DaySelectorRow = ({ days, availability, onChange }) => {
+const DaySelectorRow = React.memo(({ days, availability, onChange }) => {
   return (
     <div className="day-selector-row">
       {days.map((day) => (
@@ -36,7 +37,8 @@ const DaySelectorRow = ({ days, availability, onChange }) => {
       ))}
     </div>
   );
-};
+});
+
 
 const StudyPlan = () => {
   const [file, setFile] = useState(null);
@@ -83,24 +85,24 @@ const StudyPlan = () => {
       fetchFiles();
     }, []);
 
-  const handleChange = (day, timeType, timeValue) => {
-    setAvailability((prev) => ({
-      ...prev,
-      [day]: {
-        ...prev[day],
-        [timeType]: timeValue,
-      },
-    }));
-  };
+    const handleChange = useCallback((day, timeType, timeValue) => {
+      setAvailability((prev) => ({
+        ...prev,
+        [day]: {
+          ...prev[day],
+          [timeType]: timeValue,
+        },
+      }));
+    }, []);
 
-  // Update the dropdown handler
+
 const handleDropdownChange = (e) => {
   const selected = e.target.value;
   setSelectedFile(selected); // Update the selected file
   setUploadedFileName(selected); // Update the uploadedFileName to match the selection
 };
 
-// Update the file upload handler
+
 const handleFileChange = (e) => {
   const newFile = e.target.files[0];
   setFile(newFile); // Update the file to upload
@@ -131,13 +133,17 @@ const handleFileChange = (e) => {
     e.preventDefault();
   
     const formData = new FormData();
-    formData.append('fileName', uploadedFileName);
-    formData.append('availability', JSON.stringify(availability));
-    formData.append('overallStart', overallStart);
-    formData.append('overallEnd', overallEnd);
-    formData.append('topics', topics);
-    formData.append('studyPreference', studyPreference);
-    
+  
+    // Add fields to formData only if they are not null or empty
+    if (uploadedFileName) formData.append('fileName', uploadedFileName);
+    if (availability && Object.values(availability).some(day => day.start || day.end)) {
+      formData.append('availability', JSON.stringify(availability));
+    }
+    if (overallStart) formData.append('overallStart', overallStart);
+    if (overallEnd) formData.append('overallEnd', overallEnd);
+    if (topics) formData.append('topics', topics);
+    if (studyPreference) formData.append('studyPreference', studyPreference);
+  
     try {
       const response = await fetch('http://localhost:5001/createstudyplan', {
         method: 'POST',
@@ -150,25 +156,31 @@ const handleFileChange = (e) => {
   
       const data = await response.json();
       console.log('Response:', data);
-      
+  
       if (data.study_plan) {
         setBackendResponse(data.study_plan);
         setShowResponse(true);
       }
-
+  
     } catch (error) {
       console.error('Error:', error);
     }
   };
+  
 
-  const toggleSection = (section) => {
-    setOpenSections(prev => ({
+
+  
+
+  const toggleSection = useCallback((section) => {
+    setOpenSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
-  };
+  }, []);
+  
 
-  const AccordionSection = ({ title, description, children, sectionKey }) => (
+
+  const AccordionSection = memo(({ title, description, children, sectionKey }) => (
     <div className="accordion-section">
       <button 
         type="button"
@@ -187,7 +199,7 @@ const handleFileChange = (e) => {
         </div>
       )}
     </div>
-  );
+  ));
 
   return (
     <div className="study-plan-container">
@@ -357,7 +369,7 @@ const handleFileChange = (e) => {
     ) : (
       <div className="response-container">
         <h2>Your Generated Study Plan</h2>
-        <p>{backendResponse}</p> {/* Display the backend response */}
+        <ReactMarkdown>{backendResponse}</ReactMarkdown>
       </div>
     )}
     </div>

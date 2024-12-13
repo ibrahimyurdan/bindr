@@ -114,7 +114,10 @@ def create_study_plan():
         prompt = "Based on the following user preferences, generate a detailed and personalized study plan:"
 
         if availability:
-            prompt += f"\n1. Weekly availability: {availability}."
+            prompt += (
+                f"\n1. Weekly availability: {availability}."
+                f"\n   Note: If the user has selected a larger time block than will take to study a given day's topics, include a time estimate."
+            )
         if overall_start and overall_end:
             prompt += f"\n2. Study timeline: Start - {overall_start}, End - {overall_end}"
         if topics:
