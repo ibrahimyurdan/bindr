@@ -100,7 +100,7 @@ def create_study_plan():
         topics = request.form.get('topics', None)
         study_preference = request.form.get('studyPreference', None)
 
-        # Retrieve file content from Firestore if filename is provided
+        
         file_content = ""
         if file_name:
             doc_ref = db.collection("documents").document(file_name)
@@ -110,7 +110,7 @@ def create_study_plan():
             else:
                 return jsonify({"error": f"No document found for filename: {file_name}"}), 404
 
-        # Construct the prompt, including only the provided fields
+        
         prompt = "Based on the following user preferences, generate a detailed and personalized study plan:"
 
         if availability:
@@ -129,7 +129,7 @@ def create_study_plan():
             file_content = file_content
             prompt += f"\n\nUse the following file to extract due dates, topics to cover and resources need:\n{file_content}"
 
-        # Call OpenAI API (using client for consistency)
+      
         
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -139,7 +139,7 @@ def create_study_plan():
             ]
         )
 
-        # Extract response
+        
         study_plan = response.choices[0].message.content
        
         return jsonify({"study_plan": study_plan}), 200

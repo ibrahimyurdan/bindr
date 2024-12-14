@@ -68,8 +68,8 @@ const StudyPlan = () => {
   const [existingFiles, setExistingFiles] = useState([]); // List of existing files
   const [selectedFile, setSelectedFile] = useState(""); // Selected file from dropdown
   const [uploadedFileName, setUploadedFileName] = useState(null);
-  const [showResponse, setShowResponse] = useState(false);  // To control response visibility
-  const [backendResponse, setBackendResponse] = useState('');  // Store backend response
+  const [showResponse, setShowResponse] = useState(false);  
+  const [backendResponse, setBackendResponse] = useState('');  
   const [uploadStatus, setUploadStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
