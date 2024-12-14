@@ -1,74 +1,25 @@
-<<<<<<< HEAD
-# Getting Started with Create React App
+# Bindr
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Bindr addresses the challenge of unorganized study resources and lack of structured study
+support for students. Students often struggle to manage notes, identify key concepts, and stay
+on top of deadlines, leading to gaps in comprehension and missed assignments. Bindr is
+designed as an AI-powered, user-friendly web application that provides students with an
+interactive, personalized tool to organize study material, practice concepts, and keep track of
+deadlines. It has a few different features, including a document chat, file hub, calendar, and a study plan creator.
 
-## Available Scripts
+![image](https://github.com/user-attachments/assets/2252e84c-15d6-47c3-8c51-4ce45785fafe)
 
-In the project directory, you can run:
+## Installation
+1. Install Nodejs
+2. Download and unzip the project
+3. Using anaconda prompt, find the project directory and type `conda env create -f environment.yml`
+4. Then activate the environment using `conda activate bindr`
+5. If on windows, type `set OPENAI_API_KEY=<insert api key>` or if using unix, type `export OPENAI_API_KEY=<insert api key>`
+6. Go to the backend directory and run app.py `python app.py`
+7. In another terminal, go to the project directory and type npm install to download dependencies
+8. Then type npm start and go to http://localhost:3000/ in your browser
 
-### `npm start`
+![localhost_3000_study-plan](https://github.com/user-attachments/assets/fb900be5-6b42-4a08-bd1a-b9031826f678)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+![image](https://github.com/user-attachments/assets/83588f9b-ceee-4e69-a292-d2d20f5ba61c)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-=======
-# bindr-project
->>>>>>> f8d0250ed762e74a0c0a5edaef8779833136564f
