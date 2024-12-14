@@ -2,7 +2,10 @@ import React, { useState, useEffect, useCallback, memo } from 'react';
 import { 
   ChevronDown, 
   ChevronUp, 
-  Upload 
+  Upload,
+  FileText,
+  X,
+  Check 
 } from 'lucide-react';
 import './StudyPlanStyle.css';
 import ReactMarkdown from 'react-markdown';
@@ -264,44 +267,94 @@ const handleFileChange = (e) => {
 
         {/* Syllabus Upload */}
         <AccordionSection 
-          title="Choose Syllabus" 
-          description="Upload your course syllabus to help extract key dates and topics."
-          sectionKey="syllabus"
-        >
-          <div className="document-upload-section">
-            {/* Select an Existing File Section */}
-            <div className="file-select-container">
-              <h3>Select an Existing File</h3>
-              <select 
-                value={selectedFile} 
-                onChange={handleDropdownChange} // Use the updated handler
-              >
-                <option value="">Select an existing file</option>
-                {existingFiles.map((file) => (
-                  <option key={file.name} value={file.name}>
-                    {file.name}
-                  </option>
-                ))}
-              </select> 
+        title="Choose Syllabus" 
+        description="Upload your course syllabus to help extract key dates and topics."
+        sectionKey="syllabus"
+      >
+        <div className="syllabus-upload-container">
+          <div className="syllabus-upload-options">
+            <div className="existing-files-section">
+              <div className="section-header">
+                <FileText className="section-icon" />
+                <h3>Existing Files</h3>
+              </div>
+              <div className="file-list">
+                {existingFiles.length === 0 ? (
+                  <p className="no-files-message">No existing files</p>
+                ) : (
+                  existingFiles.map((file) => (
+                    <div 
+                      key={file.name} 
+                      className={`file-item ${selectedFile === file.name ? 'selected' : ''}`}
+                      onClick={() => {
+                        setSelectedFile(file.name);
+                        setUploadedFileName(file.name);
+                        setFile(null);
+                      }}
+                    >
+                      <FileText className="file-icon" />
+                      <span className="file-name">{file.name}</span>
+                      {selectedFile === file.name && <Check className="check-icon" />}
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
 
-            {/* Upload a New File Section */}
-            <div className="file-upload-container">
-              <h3>Or Upload a New File</h3>
-              <input 
-                type="file" 
-                onChange={handleFileChange} 
-              />
-              <button 
-                onClick={handleUpload}
-                className="upload-button"
-              >
-                <Upload className="nav-icon" /> Upload
-              </button>
-              {uploadStatus && <p>{uploadStatus}</p>}
+            <div className="divider">
+              <span>OR</span>
+            </div>
+
+            <div className="new-file-upload-section">
+              <div className="section-header">
+                <Upload className="section-icon" />
+                <h3>Upload New File</h3>
+              </div>
+              <div className="file-upload-area">
+                <input 
+                  type="file" 
+                  id="file-upload"
+                  onChange={(e) => {
+                    handleFileChange(e);
+                    setSelectedFile(""); // Clear existing file selection
+                  }}
+                  className="file-input"
+                />
+                <label htmlFor="file-upload" className="file-upload-label">
+                  {file ? (
+                    <div className="uploaded-file">
+                      <FileText className="file-icon" />
+                      <span>{file.name}</span>
+                      <X 
+                        className="remove-file-icon" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFile(null);
+                        }} 
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="upload-icon" />
+                      <p>Drag and drop or click to upload</p>
+                      <span className="file-types">PDF, DOCX, TXT accepted</span>
+                    </>
+                  )}
+                </label>
+              </div>
+              {file && (
+                <button 
+                  onClick={handleUpload}
+                  className="upload-confirm-button"
+                >
+                  Confirm Upload
+                </button>
+              )}
+              {uploadStatus && <p className="upload-status">{uploadStatus}</p>}
             </div>
           </div>
-        </AccordionSection>
+        </div>
+      </AccordionSection>
 
 
         {/* Specific Topics */}
