@@ -65,8 +65,8 @@ def ask_gpt():
 
         
         prompt = (
-            "When user greets you, respond with a greeting and explain your role. "
-            "Answer the question based on the provided document content. "
+            "If the user greets you, respond with a greeting and explain your role only once. "
+            "Analyze the file content and answer the question based on what you learn. "
             "If the answer cannot be determined from the document, respond with 'Hm...I can't seem to find the answer to that in your document. '\n\n"
             f"Document Content:\n{file_content}\n\n"
             f"Question: {question}"
@@ -76,7 +76,7 @@ def ask_gpt():
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are an assistant that helps the user search a selected document for answers to questions."},
+                {"role": "system", "content": "You are an assistant that helps the user answer questions based on the provided document."},
                 {"role": "user", "content": prompt}
             ]
         )
