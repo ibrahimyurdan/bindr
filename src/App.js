@@ -182,137 +182,116 @@ const App = () => {
         {/* Page Content */}
         <div className="content-wrapper">
           <Routes>
-            <Route 
-              path="/" 
-              element={
-                <div className="document-upload-section">
-                  {/* Select an Existing File Section */}
-                  <div className="file-select-container" style={{ marginBottom: '20px' }}>
-                    <h3 style={{ marginBottom: '10px' }}>Select an Existing File</h3>
-                    <select 
-                      value={selectedFile} 
-                      onChange={(e) => setSelectedFile(e.target.value)} 
-                      style={{
-                        marginRight: '10px',
-                        padding: '5px',
-                        minWidth: '200px',
-                        border: '1px solid #e0e4e8',
-                        borderRadius: '5px',
-                      }}
-                    >
-                      <option value="">Select an existing file</option>
-                      {existingFiles.map((file) => (
-                        <option key={file.name} value={file.name}>
-                          {file.name}
-                        </option>
-                      ))}
-                    </select>
-                    <button 
-                      onClick={() => {
-                        if (selectedFile) {
-                          handleSelectExistingFile();
-                        } else {
-                          alert("Please select a file from the dropdown.");
-                        }
-                      }}
-                      className="select-button"
-                      style={{
-                        padding: "5px 10px",
-                        backgroundColor: "var(--accent-color)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Use Selected File
-                    </button>
-                  </div>
-        
-                  {/* Upload a New File Section */}
-                  <div className="file-upload-container" style={{ marginBottom: '20px' }}>
-                    <h3 style={{ marginBottom: '10px' }}>Or Upload a New File</h3>
-                    <input 
-                      type="file" 
-                      onChange={handleFileChange} 
-                      style={{
-                        marginRight: '10px',
-                        padding: '5px',
-                        border: '1px solid #e0e4e8',
-                        borderRadius: '5px',
-                      }}
-                    />
-                    <button 
-                      onClick={handleUpload}
-                      className="upload-button"
-                      style={{
-                        padding: "5px 10px",
-                        backgroundColor: "var(--accent-color)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <Upload className="nav-icon" style={{ marginRight: '5px' }} /> Upload
-                    </button>
-                  </div>
-
-                  <div className="chat-messages">
-                    {messages.map((message, index) => (
-                      <div
-                        key={index}
-                        style={{
-                          textAlign: message.role === "user" ? "right" : "left",
-                          margin: "10px 0",
-                          padding: "10px",
-                          borderRadius: "8px",
-                          backgroundColor: message.role === "user" ? "#e6f2ff" : "#f4f6f9",
-                          maxWidth: "80%",
-                          marginLeft: message.role !== "user" ? "0" : "auto"
-                        }}
+          <Route 
+            path="/" 
+            element={
+              <div className="document-upload-container">
+                <div className="upload-card">
+                  <h2 className="upload-title">Document Interaction</h2>
+                  
+                  {/* Existing File Selection */}
+                  <div className="existing-file-section">
+                    <div className="section-header">
+                      <FileText className="section-icon" />
+                      <h3>Select Existing Document</h3>
+                    </div>
+                    <div className="file-selection-wrapper">
+                      <select 
+                        value={selectedFile} 
+                        onChange={(e) => setSelectedFile(e.target.value)} 
+                        className="file-dropdown"
                       >
-                        <strong>{message.role === "user" ? "You" : "Assistant"}:</strong> {message.content}
-                      </div>
-                    ))}
+                        <option value="">Choose a document</option>
+                        {existingFiles.map((file) => (
+                          <option key={file.name} value={file.name}>
+                            {file.name}
+                          </option>
+                        ))}
+                      </select>
+                      <button 
+                        onClick={() => {
+                          if (selectedFile) {
+                            handleSelectExistingFile();
+                          } else {
+                            alert("Please select a file from the dropdown.");
+                          }
+                        }}
+                        className="select-file-btn"
+                      >
+                        Use Document
+                      </button>
+                    </div>
                   </div>
 
-                  <div style={{ 
-                    marginTop: "20px", 
-                    display: 'flex',
-                    gap: '10px'
-                  }}>
+                  {/* New File Upload */}
+                  <div className="new-file-section">
+                    <div className="section-header">
+                      <Upload className="section-icon" />
+                      <h3>Upload New Document</h3>
+                    </div>
+                    <div className="file-upload-wrapper">
+                      <div className="file-input-container">
+                        <input 
+                          type="file" 
+                          id="file-upload"
+                          onChange={handleFileChange} 
+                          className="file-input"
+                        />
+                        <label htmlFor="file-upload" className="file-input-label">
+                          {file ? file.name : "Choose a file"}
+                        </label>
+                      </div>
+                      <button 
+                        onClick={handleUpload}
+                        className="upload-file-btn"
+                        disabled={!file}
+                      >
+                        Upload Document
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Chat Messages Area */}
+                  <div className="chat-container">
+                    <div className="chat-messages">
+                      {messages.map((message, index) => (
+                        <div
+                          key={index}
+                          className={`chat-message ${message.role === 'user' ? 'user-message' : 'assistant-message'}`}
+                        >
+                          <div className="message-content">
+                            <span className="message-sender">
+                              {message.role === "user" ? "You" : "Assistant"}:
+                            </span> 
+                            {message.content}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Message Input */}
+                  <div className="message-input-container">
                     <input
                       type="text"
                       placeholder="Type your message..."
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
-                      style={{
-                        flexGrow: 1,
-                        padding: "10px",
-                        border: "1px solid #e0e4e8",
-                        borderRadius: "8px",
-                        backgroundColor: "var(--bg-secondary)"
-                      }}
+                      className="message-input"
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                     />
                     <button
                       onClick={handleSendMessage}
-                      style={{
-                        padding: "10px 20px",
-                        backgroundColor: "var(--accent-color)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        transition: "background-color 0.3s ease"
-                      }}
+                      className="send-message-btn"
+                      disabled={!uploadedFileName || !inputMessage.trim()}
                     >
                       Send
                     </button>
                   </div>
                 </div>
-              } 
-            />
+              </div>
+            } 
+          />
             <Route path="/my-documents" element={<MyDocuments />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/study-plan" element={<StudyPlan />} />
